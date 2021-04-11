@@ -5,8 +5,11 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class EnSchedulerTest {
     private String teacher = "";
@@ -39,30 +42,43 @@ public class EnSchedulerTest {
         }
 
         ChromeOptions options = new ChromeOptions();
-//        options.addArguments("--headless", "--disable-gpu", "--window-size=1920,1200", "--ignore-certificate-errors");
+        options.addArguments(
+//                "--headless",
+                "--disable-gpu",
+                "--window-size=2920,3200",
+                "--ignore-certificate-errors");
 
         WebDriver driver = new ChromeDriver(options);
+        driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
 
         driver.get("https://mate.academy/sign-in");
+
+        driver.findElement(By.xpath("//*[@id='__next']/div/main/div/div[2]/div/div[2]/button")).click();
+
         driver.findElement(By.id("user-email")).sendKeys(email);
         driver.findElement(By.id("user-password")).sendKeys(password);
         driver.findElement(By.xpath("//button[@type='submit']")).click();
-        driver.get("https://mate.academy/events");
-        sleep();
 
         String locator = "//p[text()='" + teacher + "']/parent::div/parent::div/parent::td//following-sibling::td[5]//span[text()='Записаться']";
+
+        WebDriverWait wait = new WebDriverWait(driver, TimeUnit.SECONDS.toSeconds(5));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@class='sc-htpNat sc-1ieasxn-7 hyULJw'][1]")));
+
+        driver.get("https://mate.academy/events");
+        sleep(5000);
+
         List<WebElement> elements = driver.findElements(By.xpath(locator));
         for (WebElement element : elements) {
             element.click();
-            sleep();
+            sleep(10000);
         }
 
         driver.quit();
     }
 
-    private void sleep() {
+    private void sleep(int milliseconds) {
         try {
-            Thread.sleep(10000);
+            Thread.sleep(milliseconds);
         } catch (InterruptedException e) {
             throw new RuntimeException("Something wrong");
         }
